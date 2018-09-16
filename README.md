@@ -7,5 +7,5 @@ ToDos:
 * ~~Clear~~
 * ~~Decimal~~ and Negative support
 * Backspace
-* Multiple calculation at once
+* list calculations
 * Utilty operations : sum, count, average
