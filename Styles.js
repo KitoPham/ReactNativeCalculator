@@ -11,13 +11,12 @@ var styles = StyleSheet.create({
       justifyContent: "center",
       flexDirection:"column"
     },
-    
+
     displayText: {
       textAlign: "right",
       fontSize: 40,
       paddingRight: 20,
-      color: "white"
-
+      color: "white",
     },
   
     inputContainer:{
