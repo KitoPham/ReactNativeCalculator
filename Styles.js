@@ -21,7 +21,7 @@ var styles = StyleSheet.create({
     },
   
     inputContainer:{
-      flex:8,
+      flex:4,
       backgroundColor:"#333119"
     },
   
@@ -30,8 +30,7 @@ var styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 0.5,
-      borderRadius:1,
-      borderColor: 'white'
+      borderColor: 'black'
     },
   
     inputButtonText: {
