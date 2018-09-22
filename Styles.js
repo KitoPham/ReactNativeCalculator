@@ -1,9 +1,13 @@
 import {StyleSheet} from 'react-native';
 
 var styles = StyleSheet.create({
+    safeArea:{
+      flex:1
+    },
     container: {
+      paddingTop:30,
       flex: 1,
-      backgroundColor: '#fff',
+      backgroundColor: "#411820",
     },
     displayContainer: {
       flex:2,
@@ -11,8 +15,8 @@ var styles = StyleSheet.create({
       justifyContent: "center",
       flexDirection:"column"
     },
-
     displayText: {
+      flex:1,
       textAlign: "right",
       fontSize: 40,
       paddingRight: 20,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, SafeAreaView } from 'react-native';
 import CalcButton from './components/CalcButton';
 import styles from './Styles'
 
@@ -8,7 +8,7 @@ const buttons = [
   [1, 2, 3, '/'],
   [4, 5, 6, '*'],
   [7, 8, 9, '-'],
-  [0, '.', '=', '+']
+  ['neg', 0, '.', '=', '+']
 ];
 
 export default class App extends React.Component {
@@ -17,10 +17,13 @@ export default class App extends React.Component {
     super();
     this.state = {
       operationAvail : false,
-      newOperation: "",
       decimal: false,
+      oldValue:0,
+      currentOperation:null,
+      newValue:'',
       displayedEquation : "",
       result: 0,
+      neg: false,
     }
   }
 
@@ -31,10 +34,15 @@ export default class App extends React.Component {
 
   handlePress(value){
     if (typeof value == 'number'){
+      var newValue = this.state.newValue + value
+      if(this.state.neg && eval(newValue) > 0){
+        newValue = eval(newValue * -1) + ''
+      }
         this.setState({
-          displayedEquation : this.state.operation == '=' ? value : this.state.displayedEquation + value,
-          newOperation : this.state.newOperation + value,
-          result : this.state.operation == '=' ? value : eval(this.state.newOperation + value),
+          displayedEquation : this.state.currentOperation == '=' ? value : this.state.displayedEquation + '' + value,
+          newValue: newValue,
+          result : this.state.currentOperation == '=' ? value : eval(this.state.oldValue + (this.state.currentOperation!=null? this.state.currentOperation:"+") + "("+newValue+")"),
+          currentOperation : this.state.currentOperation == '=' ? null : this.state.currentOperation,
           operationAvail : true
         });
     } else {
@@ -43,17 +51,20 @@ export default class App extends React.Component {
         case 'b':
           this.setState({
             operationAvail : false,
-            newOperation: "",
             decimal: false,
+            oldValue:0,
+            currentOperation:null,
+            newValue:'',
             displayedEquation : "",
             result: 0,
+            neg: false,
           })
           break;
         case '.':
           if(!this.state.decimal){
             this.setState({
               displayedEquation : this.state.displayedEquation + value,
-              newOperation : this.state.newOperation + value,
+              newValue : this.state.newValue + value,
               decimal : true
             })
           }
@@ -62,18 +73,52 @@ export default class App extends React.Component {
           if (this.state.operationAvail){
             this.setState({
               displayedEquation : this.state.result,
-              newOperation : this.state.result,
-              operationAvail : false
+              operationAvail : true,
+              currentOperation : value,
+              newValue : '',
+              decimal: true,
+              neg: false
             });
+          }
+          break;
+          case 'neg':
+          if(!this.state.neg){
+            var displayedEquation = this.state.displayedEquation;
+            //A number was the last input
+            if(/[0-9]*$/.test(displayedEquation) && this.state.newValue > 0){
+              var newValue = eval(this.state.newValue * -1) + '';
+              if(this.state.decimal && !newValue.contains('.')){
+                newValue = newValue+'.'
+              }
+              displayedEquation = displayedEquation.replace(/[0-9.]*$/, newValue);
+              console.log("displayed Equation: "+ displayedEquation+"| newValue: "+newValue);
+              this.setState({
+                displayedEquation : displayedEquation,
+                newValue: newValue,
+                neg: true,
+                result: eval(this.state.oldValue +(this.state.currentOperation != null ? this.state.currentOperation : '+') + "("+ newValue+")")
+              })
+              
+            } else {
+              //Operation is the last character
+              this.setState({
+                displayedEquation: this.state.displayedEquation + '-',
+                newValue:'-',
+                neg: true
+              })
+            }
           }
           break;
         default:
         if (this.state.operationAvail){
           this.setState({
             displayedEquation : this.state.displayedEquation + value,
-            newOperation : this.state.result + value,
+            currentOperation : value,
+            oldValue: this.state.result,
+            newValue: '',
             operationAvail : false,
-            decimal: false
+            decimal: false,
+            neg:false,
           });
           break;
         }
@@ -83,23 +128,25 @@ export default class App extends React.Component {
 
   render(){
     return (
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.displayContainer} horizontal={true}>
-          <Text style={styles.displayText} numberOfLines={1}>{this.state.displayedEquation}</Text>
-          <Text style={styles.displayText} numberOfLines={1} >{this.state.result}</Text>
-        </ScrollView>
-        <View style={styles.inputContainer}>
-          {buttons.map((row, index) =>
-            <View style={styles.inputRow} key={index}>
-              {row.map((buttonValue, buttonIndex)=>
-                <CalcButton value={buttonValue} 
-                key={buttonIndex}
-                onPress = {() => this.handlePress(buttonValue)}/>
-              )}
-            </View>
-          )}
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <ScrollView contentContainerStyle={styles.displayContainer} horizontal={true}>
+            <Text style={styles.displayText} numberOfLines={1}>{this.state.displayedEquation}</Text>
+            <Text style={styles.displayText} numberOfLines={1} >{this.state.result}</Text>
+          </ScrollView>
+          <View style={styles.inputContainer}>
+            {buttons.map((row, index) =>
+              <View style={styles.inputRow} key={index}>
+                {row.map((buttonValue, buttonIndex)=>
+                  <CalcButton value={buttonValue} 
+                  key={buttonIndex}
+                  onPress = {() => this.handlePress(buttonValue)}/>
+                )}
+              </View>
+            )}
+          </View>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
